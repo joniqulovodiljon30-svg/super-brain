@@ -1,0 +1,8 @@
+{
+  "name": "Memory Master Pro",
+  "description": "A comprehensive memory training platform featuring AI-powered coaching, mnemonic generation, and specialized modules for numbers, words, faces, and flashcards.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
