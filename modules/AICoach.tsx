@@ -44,7 +44,7 @@ const AICoach: React.FC<AICoachProps> = ({ stats }) => {
               Analysis Active: v4.2.0
             </div>
           </div>
-          
+
           <div className="glass rounded-3xl p-6">
             <h4 className="font-bold text-sm uppercase text-slate-500 mb-4">Core Recommendations</h4>
             <div className="space-y-4">
@@ -85,7 +85,7 @@ const AICoach: React.FC<AICoachProps> = ({ stats }) => {
                 </div>
                 <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
                   <span className="text-xs text-slate-400">Generated using Gemini Intelligence</span>
-                  <button 
+                  <button
                     onClick={fetchAdvice}
                     className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-bold hover:scale-105 transition-transform"
                   >

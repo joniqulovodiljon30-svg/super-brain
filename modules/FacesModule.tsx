@@ -13,7 +13,7 @@ const FacesModule: React.FC<FacesModuleProps> = ({ addXP }) => {
   const [faces, setFaces] = useState<FaceData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userGuess, setUserGuess] = useState({ name: '', occupation: '' });
-  const [results, setResults] = useState<{correct: boolean, face: FaceData, guess: any}[]>([]);
+  const [results, setResults] = useState<{ correct: boolean, face: FaceData, guess: any }[]>([]);
 
   useEffect(() => {
     generateFaces();
@@ -100,21 +100,21 @@ const FacesModule: React.FC<FacesModuleProps> = ({ addXP }) => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs uppercase font-bold text-slate-500">Name</label>
-                <input 
+                <input
                   autoFocus
                   type="text"
                   className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-pink-500"
                   value={userGuess.name}
-                  onChange={e => setUserGuess(prev => ({...prev, name: e.target.value}))}
+                  onChange={e => setUserGuess(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
               <div>
                 <label className="text-xs uppercase font-bold text-slate-500">Occupation</label>
-                <input 
+                <input
                   type="text"
                   className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-pink-500"
                   value={userGuess.occupation}
-                  onChange={e => setUserGuess(prev => ({...prev, occupation: e.target.value}))}
+                  onChange={e => setUserGuess(prev => ({ ...prev, occupation: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && submitGuess()}
                 />
               </div>
@@ -159,7 +159,7 @@ const FacesModule: React.FC<FacesModuleProps> = ({ addXP }) => {
   );
 };
 
-const CheckCircle2 = ({className}: {className?: string}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-const XCircle = ({className}: {className?: string}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
+const CheckCircle2 = ({ className }: { className?: string }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>;
+const XCircle = ({ className }: { className?: string }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></svg>;
 
 export default FacesModule;

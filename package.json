@@ -1,7 +1,29 @@
 {
-    "name": "vocab-pro",
+    "name": "super-brain",
+    "private": true,
     "version": "1.0.0",
+    "type": "module",
     "scripts": {
-        "build": "echo 'Static site - no build needed'"
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "lucide-react": "latest",
+        "recharts": "latest",
+        "@google/genai": "latest"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.0",
+        "@types/react-dom": "^18.0.0",
+        "@vitejs/plugin-react": "latest",
+        "autoprefixer": "latest",
+        "postcss": "latest",
+        "tailwindcss": "latest",
+        "@tailwindcss/postcss": "latest",
+        "typescript": "latest",
+        "vite": "latest"
     }
 }

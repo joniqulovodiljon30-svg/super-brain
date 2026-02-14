@@ -2,20 +2,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { storageService } from './storageService';
 import { ModuleType, UserStats } from './types';
-import Dashboard from './Dashboard';
-import NumbersModule from './NumbersModule';
-import WordsModule from './WordsModule';
-import FlashcardsModule from './FlashcardsModule';
-import FacesModule from './FacesModule';
-import ImagesModule from './ImagesModule';
-import AICoach from './AICoach';
-import { 
-  Brain, 
-  Hash, 
-  Languages, 
-  CreditCard, 
-  UserCircle2, 
-  Image as ImageIcon, 
+import Dashboard from './modules/Dashboard';
+import NumbersModule from './modules/NumbersModule';
+import WordsModule from './modules/WordsModule';
+import FlashcardsModule from './modules/FlashcardsModule';
+import FacesModule from './modules/FacesModule';
+import ImagesModule from './modules/ImagesModule';
+import AICoach from './modules/AICoach';
+import {
+  Brain,
+  Hash,
+  Languages,
+  CreditCard,
+  UserCircle2,
+  Image as ImageIcon,
   Sun,
   Moon,
   TrendingUp,
@@ -88,7 +88,7 @@ const App: React.FC = () => {
               <div className="bg-indigo-500 h-full" style={{ width: `${(stats.xp % 1000) / 10}%` }}></div>
             </div>
           </div>
-          <button 
+          <button
             onClick={toggleTheme}
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-400"
           >
@@ -108,13 +108,12 @@ const App: React.FC = () => {
 };
 
 const NavButton: React.FC<{ icon: React.ReactNode, label: string, active: boolean, onClick: () => void }> = ({ icon, label, active, onClick }) => (
-  <button 
+  <button
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
-      active 
-        ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' 
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${active
+        ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
         : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
-    }`}
+      }`}
   >
     {icon}
     <span className="hidden md:inline font-medium text-sm">{label}</span>
