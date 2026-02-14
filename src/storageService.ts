@@ -36,5 +36,14 @@ export const storageService = {
 
   saveTheme(theme: 'light' | 'dark') {
     localStorage.setItem(STORAGE_KEY_THEME, theme);
+  },
+
+  getMajorSystem(): { id: string, word: string }[] | null {
+    const data = localStorage.getItem("mm_major_system");
+    return data ? JSON.parse(data) : null;
+  },
+
+  saveMajorSystem(data: { id: string, word: string }[]) {
+    localStorage.setItem("mm_major_system", JSON.stringify(data));
   }
 };
