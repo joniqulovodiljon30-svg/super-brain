@@ -65,7 +65,7 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col md:flex-row text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 transition-all">
       <nav className="w-full md:w-64 glass border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 p-4 flex flex-row md:flex-col items-center md:items-stretch gap-2 z-50 sticky top-0 md:h-screen">
         <div className="flex items-center gap-2 px-2 py-4 mb-0 md:mb-6 cursor-pointer" onClick={() => setActiveModule(ModuleType.DASHBOARD)}>
-          <Brain className="w-8 h-8 text-indigo-500" />
+          <img src="/icons/icon-512.png" alt="Memory Master Logo" className="w-10 h-10 object-contain" />
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-pink-500 hidden md:block">
             Memory Master
           </h1>
