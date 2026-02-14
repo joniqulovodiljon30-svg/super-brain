@@ -185,7 +185,8 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
               <div key={idx} className="flex items-center gap-3 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl">
                 <span className="text-slate-400 font-black w-8 text-right text-xs">{idx + 1}</span>
                 <input 
-                  ref={el => inputRefs.current[idx] = el}
+                  // Fix: wrapped the assignment in braces to ensure the callback returns void.
+                  ref={el => { inputRefs.current[idx] = el; }}
                   autoFocus={idx === 0}
                   type="text"
                   placeholder="..."
@@ -246,8 +247,5 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
     </div>
   );
 };
-
-const CheckCircle2 = ({className}: {className?: string}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-const XCircle = ({className}: {className?: string}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
 
 export default WordsModule;
