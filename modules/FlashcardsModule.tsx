@@ -83,8 +83,8 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
             <button onClick={exportData} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors">
               <Download size={20} />
             </button>
-            <button
-              onClick={() => { setCurrentIndex(0); setStudyMode(true); }}
+            <button 
+              onClick={() => { setCurrentIndex(0); setStudyMode(true); }} 
               disabled={cards.length === 0}
               className="px-6 py-3 bg-indigo-500 text-white rounded-xl font-bold disabled:opacity-50"
             >
@@ -97,7 +97,7 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
       {!studyMode ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <button
+            <button 
               onClick={() => setIsAdding(true)}
               className="h-48 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl flex flex-col items-center justify-center gap-2 hover:border-indigo-500 hover:text-indigo-500 transition-all text-slate-400"
             >
@@ -107,7 +107,7 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
 
             {cards.map(card => (
               <div key={card.id} className="h-48 glass rounded-3xl p-6 relative group border border-white/5">
-                <button
+                <button 
                   onClick={() => deleteCard(card.id)}
                   className="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
@@ -132,17 +132,17 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
               <div className="glass rounded-3xl p-8 w-full max-w-md space-y-6 shadow-2xl">
                 <h3 className="text-2xl font-bold">New Card</h3>
                 <div className="space-y-4">
-                  <input
-                    placeholder="Front Side (Question/Term)"
+                  <input 
+                    placeholder="Front Side (Question/Term)" 
                     className="w-full p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border-none outline-none focus:ring-2 ring-indigo-500"
                     value={newCard.front}
-                    onChange={e => setNewCard({ ...newCard, front: e.target.value })}
+                    onChange={e => setNewCard({...newCard, front: e.target.value})}
                   />
-                  <textarea
-                    placeholder="Back Side (Answer/Description)"
+                  <textarea 
+                    placeholder="Back Side (Answer/Description)" 
                     className="w-full p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border-none outline-none focus:ring-2 ring-indigo-500 h-32"
                     value={newCard.back}
-                    onChange={e => setNewCard({ ...newCard, back: e.target.value })}
+                    onChange={e => setNewCard({...newCard, back: e.target.value})}
                   />
                 </div>
                 <div className="flex gap-4">
@@ -158,8 +158,8 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
           <div className="text-center font-bold text-slate-500 uppercase tracking-widest text-sm">
             Card {currentIndex + 1} of {cards.length}
           </div>
-
-          <div
+          
+          <div 
             onClick={() => setIsFlipped(!isFlipped)}
             className="h-80 w-full relative perspective-1000 cursor-pointer group"
           >
@@ -192,7 +192,7 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
   );
 };
 
-const ScoreBtn = ({ label, color, onClick }: { label: string, color: string, onClick: () => void }) => (
+const ScoreBtn = ({label, color, onClick}: {label: string, color: string, onClick: () => void}) => (
   <button onClick={onClick} className={`${color} text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all`}>
     {label}
   </button>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { NAMES, OCCUPATIONS, FEATURES } from '../constants';
-import { FaceData } from '../types';
+import { NAMES, OCCUPATIONS, FEATURES } from './constants';
+import { FaceData } from './types';
 import { UserCircle, Search, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface FacesModuleProps {
