@@ -3,7 +3,25 @@
     "framework": "vite",
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
+        {
+            "source": "/assets/(.*)",
+            "destination": "/assets/$1"
+        },
+        {
+            "source": "/icons/(.*)",
+            "destination": "/icons/$1"
+        },
+        {
+            "source": "/manifest.json",
+            "destination": "/manifest.json"
+        },
+        {
+            "source": "/sw.js",
+            "destination": "/sw.js"
+        },
         {
             "source": "/(.*)",
             "destination": "/index.html"
