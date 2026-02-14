@@ -1,5 +1,5 @@
 
-import { UserStats, Flashcard } from "../types";
+import { UserStats, Flashcard } from "./types";
 
 const STORAGE_KEY_STATS = "mm_user_stats";
 const STORAGE_KEY_FLASHCARDS = "mm_flashcards";
