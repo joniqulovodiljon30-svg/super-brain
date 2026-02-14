@@ -187,7 +187,8 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
               <div key={idx} className="flex items-center gap-3 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl">
                 <span className="text-slate-400 font-black w-8 text-right text-xs">{idx + 1}</span>
                 <input 
-                  ref={el => inputRefs.current[idx] = el}
+                  // Fix: wrapped the assignment in braces to ensure the callback returns void.
+                  ref={el => { inputRefs.current[idx] = el; }}
                   autoFocus={idx === 0}
                   type="text"
                   placeholder="..."
