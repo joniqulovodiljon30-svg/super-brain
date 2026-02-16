@@ -18,8 +18,13 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
   const timerRef = useRef<number | null>(null);
 
+  const getBinaryString = () => {
+    const length = Math.floor(Math.random() * (12 - 4 + 1)) + 4;
+    return Array.from({ length }, () => Math.round(Math.random())).join('');
+  };
+
   const startSession = () => {
-    const newSeq = Array.from({ length: digits }, () => Math.floor(Math.random() * 10)).join('');
+    const newSeq = Array.from({ length: digits }, () => getBinaryString()).join(' ');
     setSequence(newSeq);
     setStage('memorize');
     setTimeLeft(timeLimit);
@@ -37,7 +42,7 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
   const handleSubmit = () => {
     setStage('result');
-    if (userInput === sequence) {
+    if (userInput === sequence.replace(/\s/g, '')) {
       addXP(digits * 20);
     }
   };
@@ -51,11 +56,12 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
   };
 
   const renderComparison = () => {
-    const maxLength = Math.max(sequence.length, userInput.length);
+    const targetSeq = sequence.replace(/\s/g, '');
+    const maxLength = Math.max(targetSeq.length, userInput.length);
     const comparison = [];
 
     for (let i = 0; i < maxLength; i++) {
-      const targetChar = sequence[i] || '';
+      const targetChar = targetSeq[i] || '';
       const userChar = userInput[i] || '';
       const isCorrect = targetChar === userChar;
 
@@ -139,7 +145,7 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
-            {chunkString(sequence, 2).map((chunk, idx) => (
+            {sequence.split(' ').map((chunk, idx) => (
               <span key={idx} className="text-3xl md:text-5xl font-bold font-mono text-slate-700 dark:text-slate-100 bg-white/5 px-4 py-2 rounded-xl shadow-sm min-w-[60px] border border-white/5">
                 {chunk}
               </span>
@@ -164,7 +170,7 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
             placeholder="Type the numbers here..."
             className="w-full text-center text-3xl font-mono bg-transparent border-b-4 border-indigo-500 outline-none p-4 resize-none placeholder:text-slate-700/20"
             value={userInput}
-            onChange={(e) => setUserInput(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => setUserInput(e.target.value.replace(/[^01]/g, ''))}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
           />
           <button
