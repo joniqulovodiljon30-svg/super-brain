@@ -49,7 +49,7 @@ const MajorSystemEditor: React.FC<MajorSystemEditorProps> = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-stretch md:items-center justify-center md:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-slate-900 border-t border-x md:border border-white/10 w-full max-w-6xl mt-[64px] md:mt-0 h-[calc(100vh-64px)] md:h-[90vh] rounded-t-[2rem] md:rounded-[2rem] flex flex-col shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-900 border-t border-x md:border-[7px] border-white/10 w-full max-w-6xl mt-[64px] md:mt-0 h-[calc(100vh-64px)] md:h-[85vh] md:bottom-[-170px] md:left-[-25px] rounded-t-[2rem] md:rounded-[2rem] flex flex-col shadow-2xl relative overflow-hidden">
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50">
                     <div>

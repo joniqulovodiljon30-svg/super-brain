@@ -15,16 +15,22 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
   const [userInput, setUserInput] = useState<string>('');
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showMajorSystemEditor, setShowMajorSystemEditor] = useState<boolean>(false);
-
+  const [numberMode, setNumberMode] = useState<'binary' | 'random'>('binary');
   const timerRef = useRef<number | null>(null);
 
-  const getBinaryString = () => {
-    const length = Math.floor(Math.random() * (12 - 4 + 1)) + 4;
-    return Array.from({ length }, () => Math.round(Math.random())).join('');
+  const getBinaryBlock = () => {
+    return Array.from({ length: 3 }, () => Math.round(Math.random())).join('');
+  };
+
+  const getRandomBlock = () => {
+    const num = Math.floor(Math.random() * 100);
+    return num < 10 ? `0${num}` : num.toString();
   };
 
   const startSession = () => {
-    const newSeq = Array.from({ length: digits }, () => getBinaryString()).join(' ');
+    const newSeq = Array.from({ length: digits }, () =>
+      numberMode === 'binary' ? getBinaryBlock() : getRandomBlock()
+    ).join(' ');
     setSequence(newSeq);
     setStage('memorize');
     setTimeLeft(timeLimit);
@@ -42,7 +48,7 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
   const handleSubmit = () => {
     setStage('result');
-    if (userInput === sequence.replace(/\s/g, '')) {
+    if (userInput === sequence) {
       addXP(digits * 20);
     }
   };
@@ -97,15 +103,33 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
       {stage === 'config' && (
         <div className="glass rounded-3xl p-6 md:p-10 space-y-8 animate-in fade-in duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="space-y-4 md:col-span-2">
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-500">Generation Mode</label>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setNumberMode('binary')}
+                  className={`flex-1 py-4 rounded-xl font-bold transition-all border-2 ${numberMode === 'binary' ? 'bg-indigo-500 text-white border-indigo-500 shadow-lg' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  Binary (010101)
+                </button>
+                <button
+                  onClick={() => setNumberMode('random')}
+                  className={`flex-1 py-4 rounded-xl font-bold transition-all border-2 ${numberMode === 'random' ? 'bg-indigo-500 text-white border-indigo-500 shadow-lg' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  Random (00-99)
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-4">
-              <label className="block text-sm font-bold uppercase tracking-wider text-slate-500">Sequence Length: <span className="text-indigo-500">{digits}</span> digits</label>
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-500">Number of Groups: <span className="text-indigo-500">{digits}</span></label>
               <input
-                type="range" min="5" max="500" step="5" value={digits}
+                type="range" min="3" max="50" step="1" value={digits}
                 onChange={(e) => setDigits(parseInt(e.target.value))}
                 className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
               <div className="flex justify-between text-[10px] font-mono text-slate-400">
-                <span>5</span><span>250</span><span>500</span>
+                <span>3</span><span>25</span><span>50</span>
               </div>
             </div>
             <div className="space-y-4">
@@ -163,14 +187,29 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
       {stage === 'recall' && (
         <div className="glass rounded-3xl p-6 md:p-10 space-y-8 text-center animate-in zoom-in-95 duration-300">
-          <h3 className="text-2xl font-bold">Recall: {userInput.length} / {sequence.length}</h3>
+          <h3 className="text-2xl font-bold">Recall: {userInput.length} / {sequence.replace(/\s/g, '').length}</h3>
           <textarea
             autoFocus
             rows={5}
-            placeholder="Type the numbers here..."
+            placeholder={numberMode === 'binary' ? "Type the binary blocks here..." : "Type the random numbers here..."}
             className="w-full text-center text-3xl font-mono bg-transparent border-b-4 border-indigo-500 outline-none p-4 resize-none placeholder:text-slate-700/20"
             value={userInput}
-            onChange={(e) => setUserInput(e.target.value.replace(/[^01]/g, ''))}
+            onChange={(e) => {
+              const groupSize = numberMode === 'binary' ? 3 : 2;
+              let rawValue = e.target.value.replace(/\s/g, '');
+              const maxRawLen = sequence.replace(/\s/g, '').length;
+
+              if (rawValue.length > maxRawLen) {
+                rawValue = rawValue.substring(0, maxRawLen);
+              }
+
+              let formatted = '';
+              for (let i = 0; i < rawValue.length; i++) {
+                if (i > 0 && i % groupSize === 0) formatted += ' ';
+                formatted += rawValue[i];
+              }
+              setUserInput(formatted.replace(numberMode === 'binary' ? /[^01\s]/g : /[^\d\s]/g, ''));
+            }}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
           />
           <button
