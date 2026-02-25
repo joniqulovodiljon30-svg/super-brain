@@ -5,7 +5,7 @@ import { FaceData } from '../types';
 import { UserCircle, Search, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface FacesModuleProps {
-  addXP: (xp: number) => void;
+  addXP: (xp: number, correct: number, total: number) => void;
 }
 
 const FacesModule: React.FC<FacesModuleProps> = ({ addXP }) => {
@@ -55,7 +55,7 @@ const FacesModule: React.FC<FacesModuleProps> = ({ addXP }) => {
     } else {
       setStage('summary');
       const correctCount = results.filter(r => r.correct).length + (isCorrect ? 1 : 0);
-      addXP(correctCount * 100);
+      addXP(correctCount, correctCount, faces.length);
     }
   };
 

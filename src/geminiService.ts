@@ -10,7 +10,7 @@ export const geminiService = {
    * Generates personalized coaching advice based on user stats.
    */
   async getAiCoachAdvice(stats: UserStats): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY });
     try {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -36,7 +36,7 @@ export const geminiService = {
    * Generates a mnemonic story for a given number sequence.
    */
   async generateMnemonic(numberSequence: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY });
     try {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",

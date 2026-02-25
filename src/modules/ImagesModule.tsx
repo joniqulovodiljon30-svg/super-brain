@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ImageIcon, Grid, RefreshCw, Eye, EyeOff, Search } from 'lucide-react';
 
 interface ImagesModuleProps {
-  addXP: (xp: number) => void;
+  addXP: (xp: number, correct: number, total: number) => void;
 }
 
 const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
@@ -19,13 +19,13 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
     const total = gridSize * gridSize;
     const newImages = Array.from({ length: total }, (_, i) => `https://picsum.photos/seed/${Math.random()}/200/200`);
     setImages(newImages);
-    
+
     // Pick 3-5 images for sequence
     const count = Math.min(total, gridSize + 2);
     const order: number[] = [];
-    while(order.length < count) {
+    while (order.length < count) {
       const r = Math.floor(Math.random() * total);
-      if(!order.includes(r)) order.push(r);
+      if (!order.includes(r)) order.push(r);
     }
     setTargetOrder(order);
     setStage('memorize');
@@ -37,11 +37,11 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
       if (userOrder.includes(idx)) return;
       const nextOrder = [...userOrder, idx];
       setUserOrder(nextOrder);
-      
+
       if (nextOrder.length === targetOrder.length) {
         setStage('result');
-        const isCorrect = nextOrder.every((val, i) => val === targetOrder[i]);
-        if (isCorrect) addXP(gridSize * 150);
+        const correctCount = nextOrder.filter((val, i) => val === targetOrder[i]).length;
+        addXP(correctCount, correctCount, targetOrder.length);
       }
     }
   };
@@ -61,12 +61,11 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
             <label className="text-sm font-bold uppercase text-slate-500">Grid Size ({gridSize}x{gridSize})</label>
             <div className="flex justify-center gap-4">
               {[3, 4, 5].map(s => (
-                <button 
-                  key={s} 
+                <button
+                  key={s}
                   onClick={() => setGridSize(s)}
-                  className={`w-16 h-16 rounded-2xl font-bold text-xl border-2 transition-all ${
-                    gridSize === s ? 'bg-emerald-500 text-white border-emerald-500' : 'border-slate-200 dark:border-slate-800'
-                  }`}
+                  className={`w-16 h-16 rounded-2xl font-bold text-xl border-2 transition-all ${gridSize === s ? 'bg-emerald-500 text-white border-emerald-500' : 'border-slate-200 dark:border-slate-800'
+                    }`}
                 >
                   {s}x{s}
                 </button>
@@ -93,7 +92,7 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
             )}
           </div>
 
-          <div className="grid gap-4 mx-auto" style={{ 
+          <div className="grid gap-4 mx-auto" style={{
             gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
             maxWidth: `${gridSize * 120}px`
           }}>
@@ -104,12 +103,11 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
               const userSelectionIndex = userOrder.indexOf(i);
 
               return (
-                <div 
+                <div
                   key={i}
                   onClick={() => handleTileClick(i)}
-                  className={`aspect-square relative rounded-2xl overflow-hidden cursor-pointer transition-all ${
-                    stage === 'memorize' && isTarget ? 'ring-4 ring-emerald-500 ring-offset-4 ring-offset-slate-900' : 'border border-white/5'
-                  } ${stage === 'recall' && isSelected ? 'opacity-40 grayscale' : ''}`}
+                  className={`aspect-square relative rounded-2xl overflow-hidden cursor-pointer transition-all ${stage === 'memorize' && isTarget ? 'ring-4 ring-emerald-500 ring-offset-4 ring-offset-slate-900' : 'border border-white/5'
+                    } ${stage === 'recall' && isSelected ? 'opacity-40 grayscale' : ''}`}
                 >
                   <img src={img} className="w-full h-full object-cover" />
                   {stage === 'memorize' && isTarget && (
@@ -128,7 +126,7 @@ const ImagesModule: React.FC<ImagesModuleProps> = ({ addXP }) => {
           </div>
 
           {stage === 'memorize' && (
-            <button 
+            <button
               onClick={() => setStage('recall')}
               className="w-full max-w-sm mx-auto block py-4 bg-emerald-500 text-white rounded-2xl font-bold"
             >

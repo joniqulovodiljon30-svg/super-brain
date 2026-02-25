@@ -21,6 +21,30 @@ export interface UserStats {
   }[];
 }
 
+// Supabase database types
+export interface SupabaseUserStats {
+  user_id: string;
+  current_level: number;
+  xp: number;
+  streak_days: number;
+  personal_best_streak: number;
+  total_sessions: number;
+  accuracy_average: number;
+  total_correct_all_time: number;
+  total_questions_all_time: number;
+  last_active_date: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ActivityLog {
+  id?: number;
+  user_id: string;
+  activity_date: string;
+  score: number;
+  sessions_count: number;
+}
+
 export interface Flashcard {
   id: string;
   front: string;

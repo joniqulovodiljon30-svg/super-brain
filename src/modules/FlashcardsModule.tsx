@@ -5,7 +5,7 @@ import { Flashcard } from '../types';
 import { Plus, Trash2, Download, Upload, CreditCard, RotateCw, Save } from 'lucide-react';
 
 interface FlashcardsModuleProps {
-  addXP: (xp: number) => void;
+  addXP: (xp: number, correct: number, total: number) => void;
 }
 
 const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
@@ -15,6 +15,7 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
   const [studyMode, setStudyMode] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0); // Track score 3 or higher as "correct"
 
   useEffect(() => {
     storageService.saveFlashcards(cards);
@@ -41,6 +42,10 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
   };
 
   const handleStudyResponse = (quality: number) => {
+    if (quality >= 3) {
+      setCorrectCount(prev => prev + 1);
+    }
+
     // Basic Spaced Repetition logic (SuperMemo-2 inspired)
     setCards(prev => prev.map((c, i) => {
       if (i === currentIndex) {
@@ -55,7 +60,9 @@ const FlashcardsModule: React.FC<FlashcardsModuleProps> = ({ addXP }) => {
       setIsFlipped(false);
     } else {
       setStudyMode(false);
-      addXP(cards.length * 10);
+      const finalCorrect = correctCount + (quality >= 3 ? 1 : 0);
+      addXP(cards.length, finalCorrect, cards.length);
+      setCorrectCount(0);
     }
   };
 

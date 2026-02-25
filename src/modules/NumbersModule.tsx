@@ -4,7 +4,7 @@ import { Timer, RefreshCw, Zap, CheckCircle2, XCircle, LayoutGrid } from 'lucide
 import MajorSystemEditor from './MajorSystemEditor';
 
 interface NumbersModuleProps {
-  addXP: (xp: number) => void;
+  addXP: (xp: number, correct: number, total: number) => void;
 }
 
 const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
@@ -48,9 +48,14 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
   const handleSubmit = () => {
     setStage('result');
-    if (userInput === sequence) {
-      addXP(digits * 20);
+    const targetSeq = sequence.replace(/\s/g, '');
+    const userSeq = userInput.replace(/\s/g, '');
+    const maxLength = Math.max(targetSeq.length, userSeq.length);
+    let correct = 0;
+    for (let i = 0; i < maxLength; i++) {
+      if (targetSeq[i] === userSeq[i]) correct++;
     }
+    addXP(correct, correct, maxLength);
   };
 
   const chunkString = (str: string, size: number) => {

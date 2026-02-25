@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { storageService } from './storageService';
-import { ModuleType, UserStats } from './types';
+import { ModuleType } from './types';
+import { useStats } from './hooks/useStats';
+import { calculateLevel } from './utils/leveling';
 import Dashboard from './modules/Dashboard';
+import UserLogin from './modules/UserLogin';
 import NumbersModule from './modules/NumbersModule';
 import WordsModule from './modules/WordsModule';
 import FlashcardsModule from './modules/FlashcardsModule';
@@ -10,7 +13,6 @@ import ImagesModule from './modules/ImagesModule';
 import AICoach from './modules/AICoach';
 
 import {
-  Brain,
   Hash,
   Languages,
   CreditCard,
@@ -19,13 +21,25 @@ import {
   Sun,
   Moon,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeModule, setActiveModule] = useState<ModuleType>(ModuleType.DASHBOARD);
   const [theme, setTheme] = useState<'light' | 'dark'>(storageService.getTheme());
-  const [stats, setStats] = useState<UserStats>(storageService.getUserStats());
+  const [username, setUsername] = useState<string | null>(null);
+
+  // Check localStorage for saved username on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('memory_master_user');
+    if (savedUser) {
+      setUsername(savedUser);
+    }
+  }, []);
+
+  // Supabase-backed stats (keyed by username)
+  const { stats, activityData, loading, updateStats } = useStats(username);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -38,26 +52,54 @@ const App: React.FC = () => {
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
-  const addXP = useCallback((amount: number) => {
-    setStats(prev => {
-      const newXP = prev.xp + amount;
-      const newLevel = Math.floor(newXP / 1000) + 1;
-      const updated = { ...prev, xp: newXP, level: newLevel, completedSessions: prev.completedSessions + 1 };
-      storageService.saveUserStats(updated);
-      return updated;
-    });
-  }, []);
+  const handleLogin = (name: string) => {
+    setUsername(name);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('memory_master_user');
+    setUsername(null);
+    setActiveModule(ModuleType.DASHBOARD);
+  };
+
+  // Wrapper: called by game modules after a session finishes
+  const handleGameFinish = async (score: number, correct: number, total: number) => {
+    await updateStats(score, correct, total);
+  };
+
+  // Show login modal if no username
+  if (!username) {
+    return (
+      <div className={theme === 'dark' ? 'dark' : ''}>
+        <UserLogin onLogin={handleLogin} />
+      </div>
+    );
+  }
 
   const renderModule = () => {
     switch (activeModule) {
-      case ModuleType.DASHBOARD: return <Dashboard stats={stats} onNavigate={setActiveModule} />;
-      case ModuleType.NUMBERS: return <NumbersModule addXP={addXP} />;
-      case ModuleType.WORDS: return <WordsModule addXP={addXP} />;
-      case ModuleType.FLASHCARDS: return <FlashcardsModule addXP={addXP} />;
-      case ModuleType.FACES: return <FacesModule addXP={addXP} />;
-      case ModuleType.IMAGES: return <ImagesModule addXP={addXP} />;
-      case ModuleType.COACH: return <AICoach stats={stats} />;
-      default: return <Dashboard stats={stats} onNavigate={setActiveModule} />;
+      case ModuleType.DASHBOARD:
+        return <Dashboard stats={stats} activityData={activityData} loading={loading} onNavigate={setActiveModule} username={username} />;
+      case ModuleType.NUMBERS:
+        return <NumbersModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+      case ModuleType.WORDS:
+        return <WordsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+      case ModuleType.FLASHCARDS:
+        return <FlashcardsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+      case ModuleType.FACES:
+        return <FacesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+      case ModuleType.IMAGES:
+        return <ImagesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+      case ModuleType.COACH:
+        return <AICoach stats={{
+          xp: stats.xp,
+          level: stats.current_level,
+          streak: stats.streak_days,
+          completedSessions: stats.total_sessions,
+          performanceHistory: []
+        }} />;
+      default:
+        return <Dashboard stats={stats} activityData={activityData} loading={loading} onNavigate={setActiveModule} username={username} />;
     }
   };
 
@@ -82,18 +124,32 @@ const App: React.FC = () => {
         </div>
 
         <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 hidden md:flex flex-col gap-4">
+          {/* User info */}
           <div className="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
-            <p className="text-xs uppercase font-bold text-indigo-500 mb-1">Level {stats.level}</p>
+            <p className="text-xs uppercase font-bold text-indigo-500 mb-1">Level {stats.current_level}</p>
             <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-indigo-500 h-full" style={{ width: `${(stats.xp % 1000) / 10}%` }}></div>
+              <div
+                className="bg-indigo-500 h-full transition-all duration-500"
+                style={{ width: `${calculateLevel(stats.xp).progressPct}%` }}
+              ></div>
             </div>
+            <p className="text-[10px] text-slate-400 mt-1 truncate">👤 {username}</p>
           </div>
+
           <button
             onClick={toggleTheme}
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-400"
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             <span className="text-sm font-medium">{theme === 'light' ? 'Dark' : 'Light'}</span>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-slate-500 hover:text-red-500"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Switch User</span>
           </button>
         </div>
       </nav>

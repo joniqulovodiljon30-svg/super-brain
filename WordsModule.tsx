@@ -13,16 +13,16 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
   const [timeLimit, setTimeLimit] = useState<number>(30);
   const [selectedLang, setSelectedLang] = useState<string>('EN');
   const [sessionWords, setSessionWords] = useState<string[]>([]);
-  const [testResults, setTestResults] = useState<{word: string, input: string, correct: boolean}[]>([]);
+  const [testResults, setTestResults] = useState<{ word: string, input: string, correct: boolean }[]>([]);
   const [testInputs, setTestInputs] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  
+
   const timerRef = useRef<number | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const startSession = () => {
     const langWords = [...(WORDS_DB[selectedLang] || WORDS_DB.EN)];
-    
+
     for (let i = langWords.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [langWords[i], langWords[j]] = [langWords[j], langWords[i]];
@@ -39,7 +39,7 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
         generatedWords = [...generatedWords, ...reshuffled.slice(0, remaining)];
       }
     }
-    
+
     setSessionWords(generatedWords);
     setTestInputs(new Array(wordCount).fill(''));
     setStage('memorize');
@@ -104,11 +104,10 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
                   <button
                     key={lang.code}
                     onClick={() => setSelectedLang(lang.code)}
-                    className={`flex-1 py-4 rounded-2xl font-black transition-all border-2 ${
-                      selectedLang === lang.code 
-                        ? 'bg-indigo-500 text-white border-indigo-500 shadow-xl scale-[1.02]' 
+                    className={`flex-1 py-4 rounded-2xl font-black transition-all border-2 ${selectedLang === lang.code
+                        ? 'bg-indigo-500 text-white border-indigo-500 shadow-xl scale-[1.02]'
                         : 'border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500'
-                    }`}
+                      }`}
                   >
                     {lang.name}
                   </button>
@@ -118,7 +117,7 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
 
             <div className="space-y-4">
               <label className="text-sm font-bold uppercase text-slate-500 block tracking-widest">Word Count: <span className="text-indigo-500">{wordCount}</span></label>
-              <input 
+              <input
                 type="range" min="5" max="500" step="5" value={wordCount}
                 onChange={(e) => setWordCount(parseInt(e.target.value))}
                 className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
@@ -130,7 +129,7 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
 
             <div className="space-y-4 md:col-span-2">
               <label className="text-sm font-bold uppercase text-slate-500 block tracking-widest">Time: <span className="text-indigo-500">{timeLimit}s</span></label>
-              <input 
+              <input
                 type="range" min="10" max="3600" step="10" value={timeLimit}
                 onChange={(e) => setTimeLimit(parseInt(e.target.value))}
                 className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
@@ -154,17 +153,17 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
               <Timer size={24} /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
+
+          <div className="flex flex-wrap gap-3 max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
             {sessionWords.map((word, idx) => (
               <div key={idx} className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition-colors hover:border-indigo-500/50">
                 <span className="text-indigo-500 font-black text-xs min-w-[20px]">{idx + 1}</span>
-                <span className="text-lg font-bold truncate">{word}</span>
+                <span className="text-lg font-bold break-words">{word}</span>
               </div>
             ))}
           </div>
 
-          <button 
+          <button
             onClick={finishMemorization}
             className="w-full py-5 bg-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl flex items-center justify-center gap-3"
           >
@@ -179,12 +178,12 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
             <h3 className="text-2xl font-black">Recall Progress: {testInputs.filter(i => i).length}/{sessionWords.length}</h3>
             <p className="text-slate-500 font-bold">Press Enter after each word.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-[50vh] overflow-y-auto p-4 custom-scrollbar">
             {sessionWords.map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl">
                 <span className="text-slate-400 font-black w-8 text-right text-xs">{idx + 1}</span>
-                <input 
+                <input
                   // Fix: wrapped the assignment in braces to ensure the callback returns void.
                   ref={el => { inputRefs.current[idx] = el; }}
                   autoFocus={idx === 0}
@@ -203,7 +202,7 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
               </div>
             ))}
           </div>
-          
+
           <button onClick={submitRecall} className="w-full py-5 bg-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl">
             Finish & Check
           </button>
@@ -233,7 +232,7 @@ const WordsModule: React.FC<WordsModuleProps> = ({ addXP }) => {
               </div>
             ))}
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4">
             <button onClick={() => setStage('config')} className="flex-1 py-5 bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-xl">
               New Set
