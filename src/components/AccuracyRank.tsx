@@ -20,7 +20,14 @@ const getRankTheme = (accuracy: number): RankTier => {
     if (accuracy < 90) return { title: 'Master', emoji: '🔮', message: 'Incredible focus! You are dangerous.', colorClass: 'text-purple-500 bg-purple-500/10 border-purple-500/20 shadow-purple-500/20' };
 
     // 90% and above
-    return { title: 'Professional Mnemonist', emoji: '👑', message: 'UNBELIEVABLE! You are a human supercomputer!', colorClass: 'text-fuchsia-400 bg-fuchsia-500/20 border-fuchsia-500/50 shadow-[0_0_20px_rgba(217,70,239,0.7)] drop-shadow-[0_0_10px_rgba(217,70,239,0.8)]' };
+    // Light Mode: text-purple-800, border-purple-200, bg-white, shadow-xl
+    // Dark Mode: glowing fuchsia text and background shadow
+    return {
+        title: 'Professional Mnemonist',
+        emoji: '👑',
+        message: 'UNBELIEVABLE! You are a human supercomputer!',
+        colorClass: 'text-purple-800 bg-white border-2 border-purple-200 shadow-xl dark:text-fuchsia-400 dark:bg-fuchsia-500/20 dark:border-fuchsia-500/50 dark:shadow-[0_0_20px_rgba(217,70,239,0.7)] dark:drop-shadow-[0_0_10px_rgba(217,70,239,0.8)]'
+    };
 };
 
 const AccuracyRank: React.FC<AccuracyRankProps> = ({ accuracy }) => {
@@ -31,14 +38,18 @@ const AccuracyRank: React.FC<AccuracyRankProps> = ({ accuracy }) => {
         : accuracy.toFixed(2);
 
     return (
-        <div className={`rounded-3xl p-6 md:p-8 border shadow-lg transition-all duration-300 flex flex-col md:flex-row items-center gap-6 ${rank.colorClass}`}>
-            <div className={`text-6xl md:text-8xl filter animate-bounce-slow ${accuracy >= 90 ? 'drop-shadow-[0_0_15px_rgba(217,70,239,0.8)]' : 'drop-shadow-md'}`}>
+        <div className={`rounded-3xl p-6 md:p-8 border transition-all duration-300 flex flex-col md:flex-row items-center gap-6 ${rank.colorClass}`}>
+            <div className={`text-6xl md:text-8xl filter animate-bounce-slow ${accuracy >= 90 ? 'drop-shadow-md dark:drop-shadow-[0_0_15px_rgba(217,70,239,0.8)]' : 'drop-shadow-md'}`}>
                 {rank.emoji}
             </div>
             <div className="flex-1 text-center md:text-left space-y-2">
-                <h3 className="text-sm font-black uppercase tracking-widest opacity-80">Lifetime Rank • {formattedAccuracy}% Accuracy</h3>
+                <h3 className={`text-sm font-black uppercase tracking-widest opacity-80 ${accuracy >= 90 ? 'text-gray-500 dark:text-fuchsia-200/80' : ''}`}>
+                    Lifetime Rank • {formattedAccuracy}% Accuracy
+                </h3>
                 <h2 className="text-3xl md:text-4xl font-black drop-shadow-sm">{rank.title}</h2>
-                <p className="text-lg md:text-xl font-medium opacity-90">{rank.message}</p>
+                <p className={`text-lg md:text-xl font-medium opacity-90 ${accuracy >= 90 ? 'text-indigo-600 dark:text-fuchsia-300' : ''}`}>
+                    {rank.message}
+                </p>
             </div>
         </div>
     );

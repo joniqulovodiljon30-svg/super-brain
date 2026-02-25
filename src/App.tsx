@@ -63,8 +63,8 @@ const App: React.FC = () => {
   };
 
   // Wrapper: called by game modules after a session finishes
-  const handleGameFinish = async (score: number, correct: number, total: number) => {
-    await updateStats(score, correct, total);
+  const handleGameFinish = async (score: number, correct: number, total: number, gameType: ModuleType) => {
+    await updateStats(score, correct, total, gameType);
   };
 
   // Show login modal if no username
@@ -81,15 +81,15 @@ const App: React.FC = () => {
       case ModuleType.DASHBOARD:
         return <Dashboard stats={stats} activityData={activityData} loading={loading} onNavigate={setActiveModule} username={username} />;
       case ModuleType.NUMBERS:
-        return <NumbersModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+        return <NumbersModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.NUMBERS)} />;
       case ModuleType.WORDS:
-        return <WordsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+        return <WordsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.WORDS)} />;
       case ModuleType.FLASHCARDS:
-        return <FlashcardsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+        return <FlashcardsModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.FLASHCARDS)} />;
       case ModuleType.FACES:
-        return <FacesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+        return <FacesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.FACES)} />;
       case ModuleType.IMAGES:
-        return <ImagesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total)} />;
+        return <ImagesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.IMAGES)} />;
       case ModuleType.COACH:
         return <AICoach stats={{
           xp: stats.xp,

@@ -61,7 +61,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, activityData, loading, onN
         <StatCard
           icon={<Target className="text-green-500" />}
           label="Accuracy"
-          value={`${Math.round(stats.accuracy_average)}%`}
+          value={`${(stats.accuracy_average === 100 || stats.accuracy_average === 0) ? stats.accuracy_average : stats.accuracy_average.toFixed(2)}%`}
           subValue={stats.total_sessions > 0 ? `Over ${stats.total_sessions} sessions` : 'No sessions yet'}
         />
       </div>

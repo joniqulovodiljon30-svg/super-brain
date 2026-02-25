@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { SupabaseUserStats } from '../types';
+import { SupabaseUserStats, ModuleType } from '../types';
 import { calculateLevel } from '../utils/leveling';
 
 const DEFAULT_STATS: SupabaseUserStats = {
@@ -20,7 +20,7 @@ interface UseStatsReturn {
     stats: SupabaseUserStats;
     activityData: { date: string; score: number }[];
     loading: boolean;
-    updateStats: (score: number, correct: number, totalQuestions: number) => Promise<void>;
+    updateStats: (score: number, correct: number, totalQuestions: number, gameType: ModuleType) => Promise<void>;
 }
 
 export function useStats(username: string | null): UseStatsReturn {
@@ -114,49 +114,69 @@ export function useStats(username: string | null): UseStatsReturn {
 
     // Update stats after a game session
     const updateStats = useCallback(
-        async (score: number, correct: number, totalQuestions: number) => {
+        async (score: number, correct: number, totalQuestions: number, gameType: ModuleType) => {
             if (!username) {
                 console.warn('Cannot update stats: no username.');
                 return;
             }
 
+            // Fetch current stats from DB to avoid staleness
+            const { data: dbStats, error: fetchErr } = await supabase
+                .from('user_stats')
+                .select('*')
+                .eq('user_id', username)
+                .maybeSingle();
+
+            if (fetchErr) {
+                console.error('Error fetching user stats before update:', fetchErr);
+                return;
+            }
+
+            const currentDbStats = (dbStats as SupabaseUserStats) || stats;
+
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
 
             // Calculate new values using the custom tiered leveling logic
-            const newXP = stats.xp + score;
+            const newXP = currentDbStats.xp + score;
             const newLevelData = calculateLevel(newXP);
             const newLevel = newLevelData.currentLevel;
-            const newSessions = stats.total_sessions + 1;
+            const newSessions = currentDbStats.total_sessions + 1;
 
-            // Cumulative accuracy calculation
-            const newTotalCorrect = (stats.total_correct_all_time || 0) + correct;
-            const newTotalQuestions = (stats.total_questions_all_time || 0) + totalQuestions;
+            // Cumulative accuracy calculation - ONLY update values for WORDS and NUMBERS
+            let newTotalCorrect = currentDbStats.total_correct_all_time || 0;
+            let newTotalQuestions = currentDbStats.total_questions_all_time || 0;
+
+            if (gameType === ModuleType.WORDS || gameType === ModuleType.NUMBERS) {
+                newTotalCorrect += correct;
+                newTotalQuestions += totalQuestions;
+            }
+
             const newAccuracy = newTotalQuestions > 0 ? (newTotalCorrect / newTotalQuestions) * 100 : 0;
 
             // Streak calculation
             let newStreak = 1;
-            if (stats.last_active_date) {
-                const lastDate = new Date(stats.last_active_date);
+            if (currentDbStats.last_active_date) {
+                const lastDate = new Date(currentDbStats.last_active_date);
                 const lastDateStr = lastDate.toISOString().split('T')[0];
 
                 if (lastDateStr === todayStr) {
-                    newStreak = stats.streak_days; // Same day
+                    newStreak = currentDbStats.streak_days; // Same day
                 } else {
                     const yesterday = new Date(now);
                     yesterday.setDate(yesterday.getDate() - 1);
                     const yesterdayStr = yesterday.toISOString().split('T')[0];
                     if (lastDateStr === yesterdayStr) {
-                        newStreak = stats.streak_days + 1; // Consecutive
+                        newStreak = currentDbStats.streak_days + 1; // Consecutive
                     }
                     // else: gap → reset to 1
                 }
             }
 
-            const newBestStreak = Math.max(stats.personal_best_streak, newStreak);
+            const newBestStreak = Math.max(currentDbStats.personal_best_streak, newStreak);
 
             const updatedStats: SupabaseUserStats = {
-                ...stats,
+                ...currentDbStats,
                 xp: newXP,
                 current_level: newLevel,
                 total_sessions: newSessions,
@@ -179,6 +199,8 @@ export function useStats(username: string | null): UseStatsReturn {
                     personal_best_streak: updatedStats.personal_best_streak,
                     total_sessions: updatedStats.total_sessions,
                     accuracy_average: updatedStats.accuracy_average,
+                    total_correct_all_time: updatedStats.total_correct_all_time,
+                    total_questions_all_time: updatedStats.total_questions_all_time,
                     last_active_date: updatedStats.last_active_date,
                 }, { onConflict: 'user_id' });
 
