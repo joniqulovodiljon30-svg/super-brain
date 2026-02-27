@@ -17,21 +17,43 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
   const [showMajorSystemEditor, setShowMajorSystemEditor] = useState<boolean>(false);
   const [numberMode, setNumberMode] = useState<'binary' | 'random'>('binary');
   const timerRef = useRef<number | null>(null);
+  // Chunk size for visual formatting
+  const chunkSize = numberMode === 'binary' ? 3 : 2;
+  const sliderMin = numberMode === 'binary' ? 9 : 10;
+  const sliderMax = 500;
 
-  const getBinaryBlock = () => {
-    return Array.from({ length: 3 }, () => Math.round(Math.random())).join('');
+  // Clamp digits when switching modes
+  useEffect(() => {
+    setDigits(prev => Math.max(sliderMin, Math.min(sliderMax, prev)));
+  }, [numberMode, sliderMin]);
+
+  const generateExactDigits = (count: number): string => {
+    let raw = '';
+    if (numberMode === 'binary') {
+      for (let i = 0; i < count; i++) {
+        raw += Math.round(Math.random()).toString();
+      }
+    } else {
+      for (let i = 0; i < count; i++) {
+        raw += Math.floor(Math.random() * 10).toString();
+      }
+    }
+    return raw;
   };
 
-  const getRandomBlock = () => {
-    const num = Math.floor(Math.random() * 100);
-    return num < 10 ? `0${num}` : num.toString();
+  const formatWithChunks = (raw: string, size: number): string => {
+    let formatted = '';
+    for (let i = 0; i < raw.length; i++) {
+      if (i > 0 && i % size === 0) formatted += ' ';
+      formatted += raw[i];
+    }
+    return formatted;
   };
 
   const startSession = () => {
-    const newSeq = Array.from({ length: digits }, () =>
-      numberMode === 'binary' ? getBinaryBlock() : getRandomBlock()
-    ).join(' ');
-    setSequence(newSeq);
+    const rawDigits = generateExactDigits(digits);
+    const formatted = formatWithChunks(rawDigits, chunkSize);
+    setSequence(formatted);
     setStage('memorize');
     setTimeLeft(timeLimit);
     setUserInput('');
@@ -68,12 +90,13 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
   const renderComparison = () => {
     const targetSeq = sequence.replace(/\s/g, '');
-    const maxLength = Math.max(targetSeq.length, userInput.length);
+    const userSeq = userInput.replace(/\s/g, '');
+    const maxLength = Math.max(targetSeq.length, userSeq.length);
     const comparison = [];
 
     for (let i = 0; i < maxLength; i++) {
       const targetChar = targetSeq[i] || '';
-      const userChar = userInput[i] || '';
+      const userChar = userSeq[i] || '';
       const isCorrect = targetChar === userChar;
 
       comparison.push(
@@ -127,14 +150,14 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm font-bold uppercase tracking-wider text-slate-500">Number of Groups: <span className="text-indigo-500">{digits}</span></label>
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-500">Amount of Digits: <span className="text-indigo-500">{digits}</span></label>
               <input
-                type="range" min="3" max="50" step="1" value={digits}
+                type="range" min={sliderMin} max={sliderMax} step="1" value={digits}
                 onChange={(e) => setDigits(parseInt(e.target.value))}
                 className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
               <div className="flex justify-between text-[10px] font-mono text-slate-400">
-                <span>3</span><span>25</span><span>50</span>
+                <span>{sliderMin}</span><span>{Math.round(sliderMax / 2)}</span><span>{sliderMax}</span>
               </div>
             </div>
             <div className="space-y-4">
@@ -192,7 +215,7 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
 
       {stage === 'recall' && (
         <div className="glass rounded-3xl p-6 md:p-10 space-y-8 text-center animate-in zoom-in-95 duration-300">
-          <h3 className="text-2xl font-bold">Recall: {userInput.length} / {sequence.replace(/\s/g, '').length}</h3>
+          <h3 className="text-2xl font-bold">Recall: {userInput.replace(/\s/g, '').length} / {sequence.replace(/\s/g, '').length}</h3>
           <textarea
             autoFocus
             rows={5}
@@ -200,7 +223,6 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
             className="w-full text-center text-3xl font-mono bg-transparent border-b-4 border-indigo-500 outline-none p-4 resize-none placeholder:text-slate-700/20"
             value={userInput}
             onChange={(e) => {
-              const groupSize = numberMode === 'binary' ? 3 : 2;
               let rawValue = e.target.value.replace(/\s/g, '');
               const maxRawLen = sequence.replace(/\s/g, '').length;
 
@@ -208,12 +230,11 @@ const NumbersModule: React.FC<NumbersModuleProps> = ({ addXP }) => {
                 rawValue = rawValue.substring(0, maxRawLen);
               }
 
-              let formatted = '';
-              for (let i = 0; i < rawValue.length; i++) {
-                if (i > 0 && i % groupSize === 0) formatted += ' ';
-                formatted += rawValue[i];
-              }
-              setUserInput(formatted.replace(numberMode === 'binary' ? /[^01\s]/g : /[^\d\s]/g, ''));
+              // Filter invalid characters
+              rawValue = rawValue.replace(numberMode === 'binary' ? /[^01]/g : /[^\d]/g, '');
+
+              const formatted = formatWithChunks(rawValue, chunkSize);
+              setUserInput(formatted);
             }}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
           />

@@ -92,8 +92,8 @@ const App: React.FC = () => {
         return <ImagesModule addXP={(xp: number, correct: number, total: number) => handleGameFinish(xp, correct, total, ModuleType.IMAGES)} />;
       case ModuleType.COACH:
         return <AICoach stats={{
-          xp: stats.xp,
-          level: stats.current_level,
+          xp: stats.total_xp,
+          level: stats.level,
           streak: stats.streak_days,
           completedSessions: stats.total_sessions,
           performanceHistory: []
@@ -126,11 +126,11 @@ const App: React.FC = () => {
         <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 hidden md:flex flex-col gap-4">
           {/* User info */}
           <div className="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
-            <p className="text-xs uppercase font-bold text-indigo-500 mb-1">Level {stats.current_level}</p>
+            <p className="text-xs uppercase font-bold text-indigo-500 mb-1">Level {stats.level}</p>
             <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-indigo-500 h-full transition-all duration-500"
-                style={{ width: `${calculateLevel(stats.xp).progressPct}%` }}
+                style={{ width: `${calculateLevel(stats.total_xp).progressPct}%` }}
               ></div>
             </div>
             <p className="text-[10px] text-slate-400 mt-1 truncate">👤 {username}</p>

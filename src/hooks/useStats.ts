@@ -5,14 +5,14 @@ import { calculateLevel } from '../utils/leveling';
 
 const DEFAULT_STATS: SupabaseUserStats = {
     user_id: '',
-    current_level: 1,
-    xp: 0,
+    level: 1,
+    total_xp: 0,
     streak_days: 0,
     personal_best_streak: 0,
     total_sessions: 0,
     accuracy_average: 0,
-    total_correct_all_time: 0,
-    total_questions_all_time: 0,
+    lifetime_correct: 0,
+    lifetime_attempted: 0,
     last_active_date: null,
 };
 
@@ -129,23 +129,27 @@ export function useStats(username: string | null): UseStatsReturn {
 
             if (fetchErr) {
                 console.error('Error fetching user stats before update:', fetchErr);
-                return;
+                // Don't return — fall through with defaults so upsert can still save
             }
 
-            const currentDbStats = (dbStats as SupabaseUserStats) || stats;
+            // BULLETPROOF FALLBACK: if user row doesn't exist yet, use zeros
+            const currentDbStats: SupabaseUserStats = (dbStats as SupabaseUserStats) || {
+                ...DEFAULT_STATS,
+                user_id: username,
+            };
 
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
 
             // Calculate new values using the custom tiered leveling logic
-            const newXP = currentDbStats.xp + score;
+            const newXP = currentDbStats.total_xp + score;
             const newLevelData = calculateLevel(newXP);
             const newLevel = newLevelData.currentLevel;
             const newSessions = currentDbStats.total_sessions + 1;
 
             // Cumulative accuracy calculation - ONLY update values for WORDS and NUMBERS
-            let newTotalCorrect = currentDbStats.total_correct_all_time || 0;
-            let newTotalQuestions = currentDbStats.total_questions_all_time || 0;
+            let newTotalCorrect = currentDbStats.lifetime_correct || 0;
+            let newTotalQuestions = currentDbStats.lifetime_attempted || 0;
 
             if (gameType === ModuleType.WORDS || gameType === ModuleType.NUMBERS) {
                 newTotalCorrect += correct;
@@ -177,12 +181,12 @@ export function useStats(username: string | null): UseStatsReturn {
 
             const updatedStats: SupabaseUserStats = {
                 ...currentDbStats,
-                xp: newXP,
-                current_level: newLevel,
+                total_xp: newXP,
+                level: newLevel,
                 total_sessions: newSessions,
                 accuracy_average: newAccuracy,
-                total_correct_all_time: newTotalCorrect,
-                total_questions_all_time: newTotalQuestions,
+                lifetime_correct: newTotalCorrect,
+                lifetime_attempted: newTotalQuestions,
                 streak_days: newStreak,
                 personal_best_streak: newBestStreak,
                 last_active_date: now.toISOString(),
@@ -193,14 +197,14 @@ export function useStats(username: string | null): UseStatsReturn {
                 .from('user_stats')
                 .upsert({
                     user_id: username,
-                    current_level: updatedStats.current_level,
-                    xp: updatedStats.xp,
+                    level: updatedStats.level,
+                    total_xp: updatedStats.total_xp,
                     streak_days: updatedStats.streak_days,
                     personal_best_streak: updatedStats.personal_best_streak,
                     total_sessions: updatedStats.total_sessions,
                     accuracy_average: updatedStats.accuracy_average,
-                    total_correct_all_time: updatedStats.total_correct_all_time,
-                    total_questions_all_time: updatedStats.total_questions_all_time,
+                    lifetime_correct: updatedStats.lifetime_correct,
+                    lifetime_attempted: updatedStats.lifetime_attempted,
                     last_active_date: updatedStats.last_active_date,
                 }, { onConflict: 'user_id' });
 

@@ -24,14 +24,14 @@ export interface UserStats {
 // Supabase database types
 export interface SupabaseUserStats {
   user_id: string;
-  current_level: number;
-  xp: number;
+  level: number;
+  total_xp: number;
   streak_days: number;
   personal_best_streak: number;
   total_sessions: number;
   accuracy_average: number;
-  total_correct_all_time: number;
-  total_questions_all_time: number;
+  lifetime_correct: number;
+  lifetime_attempted: number;
   last_active_date: string | null;
   created_at?: string;
   updated_at?: string;

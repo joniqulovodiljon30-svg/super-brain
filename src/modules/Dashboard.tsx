@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SupabaseUserStats, ModuleType } from '../types';
 import { calculateLevel } from '../utils/leveling';
 import AccuracyRank from '../components/AccuracyRank';
+import StreakHistoryModal from './StreakHistoryModal';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Flame, Trophy, Calendar, Target, Loader2 } from 'lucide-react';
 
@@ -26,7 +27,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, activityData, loading, onN
     );
   }
 
-  const { xpForNextLevel, progressPct } = calculateLevel(stats.xp);
+  const [showStreakModal, setShowStreakModal] = useState(false);
+  const { xpForNextLevel, progressPct } = calculateLevel(stats.total_xp);
 
   return (
     <div className="space-y-8">
@@ -43,14 +45,15 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, activityData, loading, onN
         <StatCard
           icon={<Trophy className="text-yellow-500" />}
           label="Current Level"
-          value={stats.current_level.toString()}
-          subValue={`${xpForNextLevel - (stats.xp - (stats.xp - progressPct))}XP to next`}
+          value={stats.level.toString()}
+          subValue={`${xpForNextLevel - (stats.total_xp - (stats.total_xp - progressPct))}XP to next`}
         />
         <StatCard
           icon={<Flame className="text-orange-500" />}
           label="Streak"
           value={`${stats.streak_days} Days`}
           subValue={`Personal Best: ${stats.personal_best_streak}`}
+          onClick={() => setShowStreakModal(true)}
         />
         <StatCard
           icon={<Calendar className="text-blue-500" />}
@@ -117,12 +120,24 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, activityData, loading, onN
           </div>
         </div>
       </div>
+
+      <StreakHistoryModal
+        isOpen={showStreakModal}
+        onClose={() => setShowStreakModal(false)}
+        username={username}
+      />
     </div>
   );
 };
 
-const StatCard: React.FC<{ icon: React.ReactNode, label: string, value: string, subValue: string }> = ({ icon, label, value, subValue }) => (
-  <div className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-md dark:shadow-lg rounded-3xl p-6 transition-all duration-300 hover:scale-[1.02] cursor-default">
+const StatCard: React.FC<{ icon: React.ReactNode, label: string, value: string, subValue: string, onClick?: () => void }> = ({ icon, label, value, subValue, onClick }) => (
+  <div
+    className={`bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-md dark:shadow-lg rounded-3xl p-6 transition-all duration-300 hover:scale-[1.02] ${onClick
+      ? 'cursor-pointer hover:scale-105 hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-500/30 active:scale-[0.98]'
+      : 'cursor-default'
+      }`}
+    onClick={onClick}
+  >
     <div className="flex items-center gap-3 mb-4">
       <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700/50 transition-colors duration-300">{icon}</div>
       <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</span>
